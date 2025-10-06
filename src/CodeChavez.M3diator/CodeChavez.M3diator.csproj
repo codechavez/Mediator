@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Authors>Victor A Chavez</Authors>
+		<Description>Super lightweight, yet powerful Mediator alternative. This follow a very basic implementation of the Mediator pattern from the Gang of Four programming book.</Description>
+		<Copyright>Copyright 2025 Victor A Chavez</Copyright>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageIcon>M3diator_128x128.png</PackageIcon>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageId>CodeChavez.M3diator</PackageId>
+		<Title>CodeChavez M3diator</Title>
+		<Product>CodeChavez.M3diator</Product>
+		<Version>1.0.0</Version>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\..\assets\imgs\M3diator_128x128.png" Pack="true" PackagePath="" />
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.9" />
+	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
+	  <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.14.0" />
+	  <PackageReference Include="Scrutor" Version="6.1.0" />
+	</ItemGroup>
+</Project>
