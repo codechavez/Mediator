@@ -1,0 +1,29 @@
+name: CodeChavez M3diator Package
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Restore dependencies
+        run: dotnet restore **/CodeChavez.M3diator/CodeChavez.M3diator.csproj --configfile nuget.config --no-cache
+
+      - name: Build project
+        run: dotnet build **/CodeChavez.M3diator/CodeChavez.M3diator.csproj --configuration Release
+
+      - name: Package 
+        run: dotnet pack **/CodeChavez.M3diator/CodeChavez.M3diator.csproj.csproj --configuration Release --no-build --output ./artifacts
+
+      - name: Push NuGet package
+        run: dotnet nuget push "./artifacts/*.nupkg" --api-key $NUGET_AUTH_TOKEN --source https://api.nuget.org/v3/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
+          

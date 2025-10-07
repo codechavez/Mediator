@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
 		<TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -15,7 +14,7 @@
 		<PackageId>CodeChavez.M3diator</PackageId>
 		<Title>CodeChavez M3diator</Title>
 		<Product>CodeChavez.M3diator</Product>
-		<Version>1.0.0</Version>
+		<Version>0.1.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="..\..\assets\imgs\M3diator_128x128.png" Pack="true" PackagePath="" />
