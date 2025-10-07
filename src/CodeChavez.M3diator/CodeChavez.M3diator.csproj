@@ -14,7 +14,8 @@
 		<PackageId>CodeChavez.M3diator</PackageId>
 		<Title>CodeChavez M3diator</Title>
 		<Product>CodeChavez.M3diator</Product>
-		<Version>0.1.2</Version>
+		<Version>0.1.3</Version>
+		<PackageTags>CodeChavez,Mediator,M3diator,Helpers,Utilities,.net</PackageTags>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="..\..\assets\imgs\M3diator_128x128.png" Pack="true" PackagePath="" />

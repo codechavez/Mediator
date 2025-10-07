@@ -5,6 +5,9 @@ using System.Linq.Expressions;
 
 namespace CodeChavez.M3diator;
 
+/// <summary>
+/// M3diator implementation allow access to Handle and Notification handlers
+/// </summary>
 public class M3diator : IM3diator
 {
     private readonly IServiceProvider _serviceProvider;
@@ -12,12 +15,22 @@ public class M3diator : IM3diator
     private static readonly ConcurrentDictionary<Type, Func<IServiceProvider, object, CancellationToken, ValueTask<object>>> _responseHandlers = new();
     private static readonly ConcurrentDictionary<Type, Func<IServiceProvider, object, CancellationToken, Task>> _notificationHandlers = new();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="M3diator"/> class
+    /// </summary>
+    /// <param name="sp">Service Provider</param>
     public M3diator(IServiceProvider sp)
     {
         _serviceProvider = sp;
     }
 
-    // Handle commands/queries with responses
+    /// <summary>
+    /// Handles requests with Response
+    /// </summary>
+    /// <typeparam name="TResponse"></typeparam>
+    /// <param name="request"></param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
     public async Task<TResponse> Handle<TResponse>(IRequest<TResponse> request, CancellationToken ct = default)
     {
         var handlerFunc = _responseHandlers.GetOrAdd(request.GetType(), static reqType =>
@@ -32,16 +45,23 @@ public class M3diator : IM3diator
             var getHandlerCall = Expression.Call(
                 typeof(ServiceProviderServiceExtensions),
                 nameof(ServiceProviderServiceExtensions.GetRequiredService),
-                [handlerType],
+                new[] { handlerType },
                 spParam
             );
 
             var castRequest = Expression.Convert(reqParam, reqType);
             var callHandle = Expression.Call(getHandlerCall, handleMethod, castRequest, ctParam);
 
-            var castResult = Expression.Convert(callHandle, typeof(object));
+            // Convert Task<TResponse> to ValueTask<object>
+            var wrapCall = Expression.Call(
+                typeof(M3diator),
+                nameof(WrapTaskAsValueTask),
+                new[] { typeof(TResponse) },
+                callHandle
+            );
+
             var lambda = Expression.Lambda<Func<IServiceProvider, object, CancellationToken, ValueTask<object>>>(
-                Expression.Convert(castResult, typeof(ValueTask<object>)),
+                wrapCall,
                 spParam, reqParam, ctParam
             );
 
@@ -52,7 +72,19 @@ public class M3diator : IM3diator
         return (TResponse)result;
     }
 
-    // Handle commands with no response
+    private static async ValueTask<object> WrapTaskAsValueTask<T>(Task<T> task)
+    {
+        var result = await task.ConfigureAwait(false);
+        return result!;
+    }
+
+    /// <summary>
+    /// Handles requests with no response
+    /// </summary>
+    /// <typeparam name="TRequest"></typeparam>
+    /// <param name="request"></param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
     public async Task Handle<TRequest>(TRequest request, CancellationToken ct = default) where TRequest : IRequest
     {
         var handlerFunc = _voidHandlers.GetOrAdd(request.GetType(), static reqType =>
@@ -67,15 +99,23 @@ public class M3diator : IM3diator
             var getHandlerCall = Expression.Call(
                 typeof(ServiceProviderServiceExtensions),
                 nameof(ServiceProviderServiceExtensions.GetRequiredService),
-                [handlerType],
+                new[] { handlerType },
                 spParam
             );
 
             var castRequest = Expression.Convert(reqParam, reqType);
             var callHandle = Expression.Call(getHandlerCall, handleMethod, castRequest, ctParam);
 
+            // Convert Task to ValueTask
+            var wrapCall = Expression.Call(
+                typeof(M3diator),
+                nameof(WrapTaskAsValueTaskVoid),
+                Type.EmptyTypes,
+                callHandle
+            );
+
             var lambda = Expression.Lambda<Func<IServiceProvider, object, CancellationToken, ValueTask>>(
-                Expression.Convert(callHandle, typeof(ValueTask)),
+                wrapCall,
                 spParam, reqParam, ctParam
             );
 
@@ -84,7 +124,19 @@ public class M3diator : IM3diator
 
         await handlerFunc(_serviceProvider, request!, ct);
     }
-
+    
+    private static async ValueTask WrapTaskAsValueTaskVoid(Task task)
+    {
+        await task.ConfigureAwait(false);
+    }
+    
+    /// <summary>
+    /// Publishes INotification
+    /// </summary>
+    /// <typeparam name="TNotification"></typeparam>
+    /// <param name="notification"></param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
     public async Task Publish<TNotification>(TNotification notification, CancellationToken ct = default)
         where TNotification : INotification
     {
@@ -99,4 +151,5 @@ public class M3diator : IM3diator
 
         await Task.WhenAll(tasks);
     }
+
 }
