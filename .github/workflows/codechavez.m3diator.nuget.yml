@@ -23,7 +23,7 @@ jobs:
         run: dotnet restore **/CodeChavez.M3diator/CodeChavez.M3diator.csproj --configfile nuget.config --no-cache
 
       - name: Build Tests
-        run: dotnet build **/CodeChavez.M3diator.Tests/CodeChavez.M3diator.Tests.csproj --configuration Release
+        run: dotnet build **/CodeChavez.Mediator.Tests/CodeChavez.Mediator.Tests.csproj --configuration Release
 
       - name: Run tests with coverage
         run: |
