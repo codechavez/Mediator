@@ -2,7 +2,7 @@
 
 public class Result<T>
 {
-    public virtual T Value { get; private set; }
+    public virtual T? Value { get; private set; }
     public virtual bool IsSuccess { get; private set; } = true;
     public virtual string ErrorMessage { get; private set; } = string.Empty;
 
